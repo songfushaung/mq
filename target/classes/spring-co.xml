@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
+	
+
+   <!-- JMS服务厂商提供的ConnectionFactory -->
+	<bean id="targetConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<constructor-arg name="brokerURL" value="tcp://127.0.0.1:61616"/>
+    </bean>
+	<!-- spring对象ConnectionFactory的封装 -->
+	<bean id="connectionFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
+		<property name="targetConnectionFactory" ref="targetConnectionFactory"></property>
+	</bean>
+	<!-- 配置消息的Destination对象 点对点 -->
+	<bean id="queue" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg name="name" value="test"></constructor-arg>
+	</bean>
+	<!-- 配置消息的接收者 -->
+	<bean id="orderListener" class="Receiver"/>
+	<bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="connectionFactory" />
+		<property name="destination" ref="queue" />
+		<property name="messageListener" ref="orderListener" />
+		<!-- 失败时重试-->
+<!--         <property name="sessionTransacted" value="true"/>
+ -->        <!--客户端签收模式 没有异常就自动签收 有异常必须使用acknowledge()签收-->
+         <property name="sessionAcknowledgeMode" value="4"></property>
+      </bean>
+      <!-- https://blog.csdn.net/s296850101/article/details/52367687 -->
+</beans>
