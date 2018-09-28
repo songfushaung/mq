@@ -1,6 +1,6 @@
 package bean;
 
-public class Order {
+public class Stu {
    /**
     * 订单id
     */

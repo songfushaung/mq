@@ -6,8 +6,8 @@
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
 	
 
-   <!-- JMS服务厂商提供的ConnectionFactory -->
-	<bean id="targetConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+   <!--JMS服务厂商提供的ConnectionFactory-->	
+  <bean id="targetConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
 		<constructor-arg name="brokerURL" value="tcp://127.0.0.1:61616"/>
     </bean>
 	<!-- spring对象ConnectionFactory的封装 -->
@@ -16,18 +16,20 @@
 	</bean>
 	<!-- 配置消息的Destination对象 点对点 -->
 	<bean id="queue" class="org.apache.activemq.command.ActiveMQQueue">
-		<constructor-arg name="name" value="test"></constructor-arg>
-	</bean>
+		<constructor-arg name="name" value="user"></constructor-arg>
+	</bean> 
 	<!-- 配置消息的接收者 -->
 	<bean id="orderListener" class="Receiver"/>
 	<bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
 		<property name="connectionFactory" ref="connectionFactory" />
 		<property name="destination" ref="queue" />
 		<property name="messageListener" ref="orderListener" />
-		<!-- 失败时重试-->
-<!--         <property name="sessionTransacted" value="true"/>
- -->        <!--客户端签收模式 没有异常就自动签收 有异常必须使用acknowledge()签收-->
-         <property name="sessionAcknowledgeMode" value="4"></property>
-      </bean>
-      <!-- https://blog.csdn.net/s296850101/article/details/52367687 -->
+		<!-- 失败时重试如果监听的实现类是MessageListener就开启应为没有session功能 -->
+        <!-- <property name="sessionTransacted" value="true"/> -->
+        <!-- 客户端签收模式 没有异常就自动签收 有异常必须使用acknowledge()签收 -->
+        <property name="sessionAcknowledgeMode" value="4"></property> 
+        <property name="transactionManager" ref="jtaTransactionManager"/>  
+    </bean>  
+  <bean id="jtaTransactionManager" class="org.springframework.transaction.jta.JtaTransactionManager"/>
+  <tx:annotation-driven transaction-manager="jtaTransactionManager"/>  
 </beans>

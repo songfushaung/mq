@@ -19,6 +19,6 @@
 	</bean>
 	<!--点对点模式-->
 	<bean id="queue" class="org.apache.activemq.command.ActiveMQQueue">
-		<constructor-arg name="name" value="test"></constructor-arg>
+		<constructor-arg name="name" value="user"></constructor-arg>
 	</bean>
 </beans>
